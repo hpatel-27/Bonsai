@@ -26,6 +26,15 @@ public class Exercise extends DomainObject {
     /** Description of the exercise */
     private String description;
 
+    /** Weight used for the exercise */
+    private double weight;
+
+    /** Number of sets done */
+    private int    sets;
+
+    /** Number of reps done */
+    private int    reps;
+
     /**
      * Empty default constructor
      */
@@ -41,9 +50,13 @@ public class Exercise extends DomainObject {
      * @param description
      *            Description to set
      */
-    public Exercise ( final String name, final String description ) {
+    public Exercise ( final String name, final String description, final double weight, final int sets,
+            final int reps ) {
         setName( name );
         setDescription( description );
+        setWeight( weight );
+        setSets( sets );
+        setReps( reps );
     }
 
     /**
@@ -116,6 +129,81 @@ public class Exercise extends DomainObject {
     }
 
     /**
+     * Returns the Weight used for the exercise
+     *
+     * @return the weight
+     */
+    public double getWeight () {
+        return weight;
+    }
+
+    /**
+     * Sets the weight for the exercise
+     *
+     * @param weight
+     *            The weight to set
+     *
+     * @throws IllegalArgumentException
+     *             If weight is negative
+     */
+    public void setWeight ( final double weight ) {
+        if ( weight < 0 ) {
+            throw new IllegalArgumentException( "Weight cannot be negative." );
+        }
+        this.weight = weight;
+    }
+
+    /**
+     * Returns the sets completed for the exercise
+     *
+     * @return the sets
+     */
+    public int getSets () {
+        return sets;
+    }
+
+    /**
+     * Sets the number of sets completed for the exercise
+     *
+     * @param sets
+     *            The sets to set
+     *
+     * @throws IllegalArgumentException
+     *             If sets is negative
+     */
+    public void setSets ( final int sets ) {
+        if ( sets < 0 ) {
+            throw new IllegalArgumentException( "Sets cannot be negative." );
+        }
+        this.sets = sets;
+    }
+
+    /**
+     * Returns the reps completed used for the exercise
+     *
+     * @return the reps
+     */
+    public int getReps () {
+        return reps;
+    }
+
+    /**
+     * Sets the number of reps completed for the exercise
+     *
+     * @param reps
+     *            The reps to set
+     *
+     * @throws IllegalArgumentException
+     *             If reps is negative
+     */
+    public void setReps ( final int reps ) {
+        if ( reps < 0 ) {
+            throw new IllegalArgumentException( "Reps cannot be negative." );
+        }
+        this.reps = reps;
+    }
+
+    /**
      * Two exercises are equal if they have the same value for their name
      *
      * @param obj
@@ -152,6 +240,7 @@ public class Exercise extends DomainObject {
      */
     @Override
     public String toString () {
-        return "Exercise [id=" + id + ", name=" + name + ", description=" + description + "]";
+        return "Exercise [id=" + id + ", name=" + name + ", description=" + description + ", weight=" + weight
+                + ", sets=" + sets + ", reps=" + reps + "]";
     }
 }
