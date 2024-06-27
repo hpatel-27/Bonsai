@@ -2,7 +2,11 @@ package hpatel.Bonsai.models;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -25,21 +29,21 @@ public class Workout extends DomainObject {
     /** Workout id */
     @Id
     @GeneratedValue
-    private Long                 id;
+    private Long                        id;
 
     /** Workout name */
-    private String               name;
+    private String                      name;
 
     /** Workout date */
-    private LocalDate            date;
+    private LocalDate                   date;
 
     @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-    private final List<Exercise> exercises;
+    private final Map<String, Exercise> exercises;
 
     public Workout () {
         this.name = "";
         this.date = LocalDate.now();
-        exercises = new ArrayList<Exercise>();
+        exercises = new HashMap<String, Exercise>();
     }
 
     @Override
@@ -110,22 +114,16 @@ public class Workout extends DomainObject {
     }
 
     /**
-     * Returns the list of exercises
+     * Returns the hash map of exercises
      *
-     * @return the list of exercises
+     * @return the hash map of exercises
      */
     public List<Exercise> getExercises () {
-        return exercises;
+        return new ArrayList<>( exercises.values() );
     }
 
     public Exercise getExercise ( final Exercise exercise ) {
-        // check if the exercise actually exists first
-        if ( !exercises.contains( exercise ) ) {
-            return null;
-        }
-        // since it exists we don't have to worry about checking for
-        // error state
-        return exercises.get( exercises.indexOf( exercise ) );
+        return exercises.get( exercise.getName() );
     }
 
     public void addExercise ( final Exercise exercise ) {
@@ -134,21 +132,8 @@ public class Workout extends DomainObject {
             throw new IllegalArgumentException( "Exercise does not provide all the necessary information." );
         }
 
-        // if the exercise is already in there, just send that to the user
-        // let them edit or remove the already existing exercise that matches
-        if ( exercises.contains( exercise ) ) {
-            // get the old exercise and update the values of its fields to match
-            // the new one
-            final Exercise e = exercises.get( exercises.indexOf( exercise ) );
-            e.setDescription( exercise.getDescription() );
-            e.setName( exercise.getName() );
-            e.setWeight( exercise.getWeight() );
-            e.setReps( exercise.getReps() );
-            e.setSets( exercise.getSets() );
-        }
-        else {
-            exercises.add( exercise );
-        }
+        // If the exercise is already in there, update its values
+        exercises.put( exercise.getName(), exercise );
     }
 
     /**
@@ -159,32 +144,26 @@ public class Workout extends DomainObject {
      * @return True if the exercise could be removed, false if it wasn't there
      */
     public boolean removeExercise ( final Exercise exercise ) {
-        return exercises.remove( exercise );
+        return exercises.remove( exercise.getName() ) != null;
     }
 
     public void updateWorkout ( final Workout workout ) {
-        // set the name and date
+        // Set the name and date
         this.setName( workout.getName() );
         this.setDate( workout.getDate() );
 
-        // get the new list of exercises
+        // Get the new list of exercises
         final List<Exercise> newExercises = workout.getExercises();
+        final Set<String> newExerciseNames = new HashSet<>();
 
-        // delete any exercises which didn't make it over to the updated workout
-        for ( int i = 0; i < this.exercises.size(); ) {
-            if ( !newExercises.contains( exercises.get( i ) ) ) {
-                exercises.remove( i );
-            }
-            else {
-                i++;
-            }
-        }
-
-        // now that all the unneeded exercises are gone, use the addExercise
-        // method to update or add all the exercises
-        for ( final Exercise e : workout.getExercises() ) {
+        // Add new or update existing exercises
+        for ( final Exercise e : newExercises ) {
+            newExerciseNames.add( e.getName() );
             this.addExercise( e );
         }
+
+        // Remove exercises that are no longer in the updated workout
+        exercises.keySet().removeIf( name -> !newExerciseNames.contains( name ) );
     }
 
     /**
