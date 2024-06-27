@@ -7,11 +7,11 @@
 		<version>2.3.7.BUILD-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>edu.ncsu.csc</groupId>
-	<artifactId>CoffeeMaker-Individual</artifactId>
+	<groupId>hpatel</groupId>
+	<artifactId>Bonsai-Fitness</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>CoffeeMaker-Individual</name>
-	<description>CoffeeMaker with transaction support</description>
+	<name>Bonsai-Fitness</name>
+	<description>Bonsai Fitness Application to track workouts and weight</description>
 
 
 	<properties>
