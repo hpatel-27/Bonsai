@@ -81,7 +81,7 @@ public class Workout extends DomainObject {
     /**
      * Returns date of the workout.
      *
-     * @return Returns the name.
+     * @return Returns the date.
      */
     public LocalDate getDate () {
         return date;
