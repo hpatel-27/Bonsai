@@ -172,8 +172,8 @@ public class Exercise extends DomainObject {
      *             If sets is negative
      */
     public void setSets ( final int sets ) {
-        if ( sets < 0 ) {
-            throw new IllegalArgumentException( "Sets cannot be negative." );
+        if ( sets < 1 ) {
+            throw new IllegalArgumentException( "At least one set must have been completed." );
         }
         this.sets = sets;
     }
@@ -197,8 +197,8 @@ public class Exercise extends DomainObject {
      *             If reps is negative
      */
     public void setReps ( final int reps ) {
-        if ( reps < 0 ) {
-            throw new IllegalArgumentException( "Reps cannot be negative." );
+        if ( reps < 1 ) {
+            throw new IllegalArgumentException( "At least one rep must have been completed." );
         }
         this.reps = reps;
     }
