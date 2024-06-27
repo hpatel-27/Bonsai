@@ -1,7 +1,10 @@
 package hpatel.Bonsai.services;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 
 import hpatel.Bonsai.models.Exercise;
 import hpatel.Bonsai.repositories.ExerciseRepository;
@@ -12,6 +15,8 @@ import hpatel.Bonsai.repositories.ExerciseRepository;
  * @author Harsh Patel
  *
  */
+@Component
+@Transactional
 public class ExerciseService extends Service<Exercise, Long> {
 
     /**
