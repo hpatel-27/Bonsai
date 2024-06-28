@@ -40,12 +40,18 @@ public class Workout extends DomainObject {
     @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
     private final Map<String, Exercise> exercises;
 
+    // Constructor to set up a workout
     public Workout () {
         this.name = "";
         this.date = LocalDate.now();
         exercises = new HashMap<String, Exercise>();
     }
 
+    /**
+     * Returns the id for the object
+     *
+     * @return id The id of the object
+     */
     @Override
     public Long getId () {
         return id;
@@ -114,18 +120,35 @@ public class Workout extends DomainObject {
     }
 
     /**
-     * Returns the hash map of exercises
+     * Returns a list of exercises from the value in the key-value pair of the
+     * Hash map
      *
-     * @return the hash map of exercises
+     * @return the list of exercises
      */
     public List<Exercise> getExercises () {
         return new ArrayList<>( exercises.values() );
     }
 
+    /**
+     * Returns a specific exercise
+     *
+     * @param exercise
+     *            The exercise to find
+     * @return The found exercise
+     */
     public Exercise getExercise ( final Exercise exercise ) {
         return exercises.get( exercise.getName() );
     }
 
+    /**
+     * Adds or updates an exercises depending on if it previously existed
+     *
+     * @param exercise
+     *            The exercise to add/update
+     *
+     * @throws IllegalArgumentException
+     *             If the exercise is invalid
+     */
     public void addExercise ( final Exercise exercise ) {
         if ( exercise.getName().isEmpty() || exercise.getWeight() < 0 || exercise.getReps() < 0
                 || exercise.getSets() < 0 ) {
@@ -147,6 +170,12 @@ public class Workout extends DomainObject {
         return exercises.remove( exercise.getName() ) != null;
     }
 
+    /**
+     * Update the workout to match the one that was passed as parameter
+     *
+     * @param workout
+     *            The new workout with the updated values
+     */
     public void updateWorkout ( final Workout workout ) {
         // Set the name and date
         this.setName( workout.getName() );
