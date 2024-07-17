@@ -2,8 +2,8 @@ package hpatel.Bonsai.generation;
 
 import javax.transaction.Transactional;
 
-import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,7 +31,7 @@ public class GenerateWorkoutWithExercises {
     /**
      * Deletes all the workouts before each method
      */
-    @Before
+    @BeforeEach
     public void setup () {
         workoutService.deleteAll();
     }
@@ -40,6 +40,7 @@ public class GenerateWorkoutWithExercises {
      * Creates the workout for testing
      */
     @Test
+    @Transactional
     public void createWorkout () {
         final Workout w1 = new Workout();
         w1.setName( "Push" );
