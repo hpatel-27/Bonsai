@@ -80,7 +80,7 @@ public class TestDatabaseInteraction {
         // test find by name
         assertEquals( w, workoutService.findByName( "Push" ) );
 
-        final LocalDate testDate = LocalDate.now();
+        final String testDate = LocalDate.now().toString();
         dbWorkout.setDate( testDate );
 
         final Exercise e4 = new Exercise( "Bench Press", "Chest, Triceps, Shoulders", 225.0, 1, 1 );
@@ -107,7 +107,7 @@ public class TestDatabaseInteraction {
         // make a new workout
 
         final Workout w2 = new Workout();
-        final LocalDate testDate2 = LocalDate.now();
+        final String testDate2 = LocalDate.now().toString();
         w2.setName( "Pull" );
         w2.setDate( testDate2 );
 
