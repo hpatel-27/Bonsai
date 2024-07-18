@@ -35,7 +35,7 @@ public class Workout extends DomainObject {
     private String                      name;
 
     /** Workout date */
-    private LocalDate                   date;
+    private String                      date;
 
     @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
     private final Map<String, Exercise> exercises;
@@ -43,7 +43,14 @@ public class Workout extends DomainObject {
     // Constructor to set up a workout
     public Workout () {
         this.name = "";
-        this.date = LocalDate.now();
+        this.date = LocalDate.now().toString();
+        exercises = new HashMap<String, Exercise>();
+    }
+
+    // Constructor to set up a workout using a name
+    public Workout ( final String name ) {
+        setName( name );
+        this.date = LocalDate.now().toString();
         exercises = new HashMap<String, Exercise>();
     }
 
@@ -84,7 +91,10 @@ public class Workout extends DomainObject {
      *            The name to set.
      */
     public void setName ( final String name ) {
-        // Lets allow them to not have a name for the workout?
+        if ( name == null || name.length() == 0 ) {
+            throw new IllegalArgumentException( "Name must be valid." );
+        }
+
         this.name = name;
     }
 
@@ -93,7 +103,7 @@ public class Workout extends DomainObject {
      *
      * @return Returns the date.
      */
-    public LocalDate getDate () {
+    public String getDate () {
         return date;
     }
 
@@ -103,7 +113,7 @@ public class Workout extends DomainObject {
      * @param date
      *            The date to set.
      */
-    public void setDate ( final LocalDate date ) {
+    public void setDate ( final String date ) {
         if ( date == null ) {
             throw new IllegalArgumentException( "Must provide a date for the workout." );
         }
