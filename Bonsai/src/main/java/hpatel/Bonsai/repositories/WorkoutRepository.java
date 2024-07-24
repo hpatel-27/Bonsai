@@ -1,7 +1,5 @@
 package hpatel.Bonsai.repositories;
 
-import java.time.LocalDate;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import hpatel.Bonsai.models.Workout;
@@ -33,6 +31,6 @@ public interface WorkoutRepository extends JpaRepository<Workout, Long> {
      *            Name of the workout
      * @return Found workout, null if none.
      */
-    Workout findByDate ( LocalDate date );
+    Workout findByDate ( String date );
 
 }
