@@ -91,7 +91,7 @@ public class Workout extends DomainObject {
      *            The name to set.
      */
     public void setName ( final String name ) {
-        if ( name == null || name.length() == 0 ) {
+        if ( name == null || name.length() == 10 ) {
             throw new IllegalArgumentException( "Name must be valid." );
         }
 
