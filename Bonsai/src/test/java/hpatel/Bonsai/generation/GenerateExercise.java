@@ -38,11 +38,11 @@ public class GenerateExercise {
     public void testCreateExercises () {
         exerciseService.deleteAll();
 
-        final Exercise e1 = new Exercise( "Bench Press", "Chest, Triceps, Shoulders", 135.0, 4, 10 );
+        Exercise e1 = new Exercise( "Bench Press", "Chest, Triceps, Shoulders", 135.0, 4, 10 );
 
         exerciseService.save( e1 );
 
-        final Exercise e2 = new Exercise( "Deadlift", "Back, Core, Legs", 315.0, 3, 5 );
+        Exercise e2 = new Exercise( "Deadlift", "Back, Core, Legs", 315.0, 3, 5 );
 
         exerciseService.save( e2 );
 
@@ -51,6 +51,9 @@ public class GenerateExercise {
         final List<Exercise> exercises = exerciseService.findAll();
 
         assertEquals( 2, exercises.size() );
+
+        e1 = exercises.get( 0 );
+        e2 = exercises.get( 1 );
 
         assertEquals( "Bench Press", e1.getName() );
         assertEquals( "Chest, Triceps, Shoulders", e1.getDescription() );
