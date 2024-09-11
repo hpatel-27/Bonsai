@@ -116,4 +116,12 @@ public class UserWeightTest {
 
     }
 
+    public void invalidDateTest () {
+
+    }
+
+    public void invalidWeightTest () {
+
+    }
+
 }
