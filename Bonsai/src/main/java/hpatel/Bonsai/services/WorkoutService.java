@@ -1,7 +1,5 @@
 package hpatel.Bonsai.services;
 
-import java.time.LocalDate;
-
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +51,7 @@ public class WorkoutService extends Service<Workout, Long> {
      *            Name of the workout to find
      * @return found workout, null if none
      */
-    public Workout findByDate ( final LocalDate date ) {
+    public Workout findByDate ( final String date ) {
         return workoutRepository.findByDate( date );
     }
 

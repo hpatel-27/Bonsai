@@ -18,13 +18,45 @@ public class UserWeight extends DomainObject {
     /** User weight id */
     @Id
     @GeneratedValue
-    private long      id;
+    private long   id;
 
     /** Weigh in date */
-    private LocalDate date;
+    private String date;
 
     /** Weigh in weight */
-    private double    weight;
+    private double weight;
+
+    /**
+     * Constructor for when only one of the fields is provided
+     *
+     * @param weight
+     */
+    public UserWeight () {
+        // empty constructor
+    }
+
+    /**
+     * Constructor for both private fields of the object
+     *
+     * @param date
+     *            The date to set for the object
+     * @param weight
+     *            The weight to set for the object
+     */
+    public UserWeight ( final String date, final double weight ) {
+        setDate( date );
+        setWeight( weight );
+    }
+
+    /**
+     * Constructor for when only one of the fields is provided
+     *
+     * @param weight
+     */
+    public UserWeight ( final double weight ) {
+        setDate( LocalDate.now().toString() );
+        setWeight( weight );
+    }
 
     @Override
     public Serializable getId () {
@@ -51,8 +83,8 @@ public class UserWeight extends DomainObject {
      * @throws IllegalArgumentException
      *             when no date is provided
      */
-    public void setDate ( final LocalDate date ) {
-        if ( date == null ) {
+    public void setDate ( final String date ) {
+        if ( date == null || date.length() != 10 ) {
             throw new IllegalArgumentException( "Must provide a date for the weigh in." );
         }
         this.date = date;
@@ -63,7 +95,7 @@ public class UserWeight extends DomainObject {
      *
      * @return Returns the date.
      */
-    public LocalDate getDate () {
+    public String getDate () {
         return date;
     }
 
