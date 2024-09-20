@@ -1,11 +1,14 @@
-import axios from "axios";
+// userWeightService.js
+import { request } from "../utils/request";
 
-// const API_URL = "http://localhost:8080/api/v1";
+const BASE_URL = "/api/v1/userweight";
 
-const getUserWeights = () => {
-  return axios.get(`http://localhost:8080/api/v1/weights`);
-};
+export const userWeightService = {
+  getUserWeights: async () => {
+    return request(`${BASE_URL}`, "GET");
+  },
 
-export default {
-  getUserWeights,
+  addUserWeight: async (weightData) => {
+    return request(`${BASE_URL}/add`, "POST", weightData);
+  },
 };
