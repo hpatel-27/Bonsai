@@ -1,33 +1,31 @@
+// src/components/Workout.jsx
 import React, { useEffect, useState } from "react";
-import workoutService from "../services/workoutService";
+import { workoutService } from "../services/workoutService";
 
 const Workout = () => {
   const [workouts, setWorkouts] = useState([]);
 
   useEffect(() => {
-    workoutService
-      .getWorkouts()
-      .then((response) => {
-        setWorkouts(response.data);
-      })
-      .catch((error) => {
+    const fetchWorkouts = async () => {
+      try {
+        const data = await workoutService.getWorkouts();
+        setWorkouts(data);
+      } catch (error) {
         console.error("Error fetching workouts", error);
-      });
+      }
+    };
+
+    fetchWorkouts();
   }, []);
 
   return (
     <div>
-      <h2>Workouts</h2>
-      {workouts.map((workout) => (
-        <div key={workout.id}>
-          <h3>{workout.name}</h3>
-          <ul>
-            {workout.exercises.map((exercise) => (
-              <li key={exercise.id}>{exercise.name}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <h2>Workout List</h2>
+      <ul>
+        {workouts.map((workout) => (
+          <li key={workout.id}>{workout.name}</li>
+        ))}
+      </ul>
     </div>
   );
 };

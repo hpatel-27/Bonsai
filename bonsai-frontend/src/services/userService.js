@@ -1,11 +1,19 @@
-import axios from "axios";
+// userService.js
+import { request } from "../utils/request";
 
-// const API_URL = "http://localhost:8080/api/v1";
+const BASE_URL = "/api/v1/users";
 
-const getUser = () => {
-  return axios.get(`http://localhost:8080/api/v1/user`);
-};
+export const userService = {
+  login: async (username, password) => {
+    const body = { username, password };
+    return request(`${BASE_URL}/login`, "POST", body);
+  },
 
-export default {
-  getUser,
+  register: async (userData) => {
+    return request(`${BASE_URL}/register`, "POST", userData);
+  },
+
+  getUserProfile: async (userId) => {
+    return request(`${BASE_URL}/${userId}`, "GET");
+  },
 };

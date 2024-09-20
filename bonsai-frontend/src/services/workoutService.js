@@ -1,11 +1,26 @@
-import axios from "axios";
+// workoutService.js
+import { request } from "../utils/request";
 
-// const API_URL = "http://localhost:8080/api/v1";
+const BASE_URL = "/api/v1/workouts";
 
-const getWorkouts = () => {
-  return axios.get(`http://localhost:8080/api/v1/workouts`);
-};
+export const workoutService = {
+  getWorkouts: async () => {
+    return request(`${BASE_URL}`, "GET");
+  },
 
-export default {
-  getWorkouts,
+  getWorkout: async (workoutId) => {
+    return request(`${BASE_URL}/${workoutId}`, "GET");
+  },
+
+  createWorkout: async (workoutData) => {
+    return request(`${BASE_URL}/create`, "POST", workoutData);
+  },
+
+  updateWorkout: async (workoutId, workoutData) => {
+    return request(`${BASE_URL}/update/${workoutId}`, "PUT", workoutData);
+  },
+
+  deleteWorkout: async (workoutId) => {
+    return request(`${BASE_URL}/delete/${workoutId}`, "DELETE");
+  },
 };

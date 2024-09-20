@@ -1,15 +1,17 @@
+// src/components/Home.jsx
 import React from "react";
-import Profile from "./Profile";
 import Workout from "./Workout";
-import UserWeight from "./UserWeight";
 
 const Home = () => {
   return (
     <div>
-      <h1>Welcome to the Fitness App Dashboard</h1>
-      <Profile />
+      <h1>Welcome to the Home Page</h1>
+      <p>
+        This is your dashboard where you can see a summary of your activities.
+      </p>
+
+      {/* Include the Workout component here */}
       <Workout />
-      <UserWeight />
     </div>
   );
 };
