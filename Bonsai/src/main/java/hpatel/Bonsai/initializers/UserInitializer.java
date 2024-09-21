@@ -11,6 +11,8 @@ import hpatel.Bonsai.repositories.UserRepository;
 
 /**
  * Initializes Admin and Guest user's in the system.
+ *
+ * @author Harsh Patel
  */
 @Configuration
 public class UserInitializer {
