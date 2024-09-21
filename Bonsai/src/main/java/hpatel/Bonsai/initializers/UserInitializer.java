@@ -1,4 +1,4 @@
-package hpatel.Bonsai.config;
+package hpatel.Bonsai.initializers;
 
 import javax.annotation.PostConstruct;
 
