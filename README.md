@@ -35,3 +35,37 @@ Before setting up the project, ensure you have the following installed:
    ```bash
    git clone https://github.com/your-username/bonsai-project.git
    cd bonsai-project
+
+
+## Project Structure
+
+```bash
+/bonsai-project
+│
+├── /bonsai-frontend         # React frontend
+│   ├── /public              # Public assets
+│   ├── /src                 # React source files
+│   │   ├── /components      # React components
+│   │   ├── /services        # API services
+│   │   ├── /hooks           # Custom hooks
+│   │   ├── App.jsx          # Main App component
+│   │   └── main.jsx         # Entry point
+│   ├── package.json         # Frontend dependencies
+│   └── vite.config.js       # Vite configuration
+│
+├── /Bonsai                  # Spring Boot backend
+│   ├── /src/main/java
+│   │   └── /hpatel/Bonsai   # Java source files
+│   │       ├── /config      # Security and configuration classes
+│   │       ├── /controllers # REST controllers
+│   │       ├── /models      # JPA entities
+│   │       ├── /repositories# JPA repositories
+│   ├── application.properties # Spring Boot configuration
+│   └── pom.xml              # Maven configuration
+│
+├── /nginx                   # Nginx configuration
+│   └── nginx.conf           # Nginx configuration file
+│
+└── docker-compose.yml       # Docker Compose configuration
+```
+
