@@ -37,7 +37,7 @@ public class Workout extends DomainObject {
     /** Workout date */
     private String                      date;
 
-    @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+    @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true )
     private final Map<String, Exercise> exercises;
 
     // Constructor to set up a workout
