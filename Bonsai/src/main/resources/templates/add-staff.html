@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Coffee Maker</title>
+        <title>Bonsai</title>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous" />
     </head>
@@ -12,16 +12,16 @@
     <script>
         /*<![CDATA[*/
         var app = angular.module('myApp', []);
-        app.controller('addBaristaCtrl', function($scope, $http, $q) {
+        app.controller('addStaffCtrl', function($scope, $http, $q) {
             /**
              * Reset the form back to blank
              */
             $scope.reset = function () {
-                /** Credentials for the new barista */
-                $scope.newBarista = {
+                /** Credentials for the new staff */
+                $scope.newStaff = {
                     username: '',
                     password: '',
-                    role: 'BARISTA'
+                    role: 'STAFF'
                 };
                 $scope.passwordCheck = {
                     password: ''
@@ -48,19 +48,19 @@
             }
 
             /**
-             * Add a barista
+             * Add a staff member
              */
              $scope.submit = function () {
                 // Ensure the passwords match before attempting to create the user
-                if ($scope.newBarista.password !== $scope.passwordCheck.password) {
+                if ($scope.newStaff.password !== $scope.passwordCheck.password) {
                     alert('Passwords must match');
                     return;
                 }
 
                 // Post the new user
-                $http.post("/api/v1/users", $scope.newBarista).then(
+                $http.post("/api/v1/users", $scope.newStaff).then(
                     function (response) {
-                        if (window.confirm("Barista successfully added! Would you like to go to the home page?")) {
+                        if (window.confirm("Staff successfully added! Would you like to go to the home page?")) {
                             window.location.href="/index";
 
                         } else {
@@ -70,7 +70,7 @@
 
                     },
                     function (errResponse) {
-                        alert("Error while adding barista");
+                        alert("Error while adding staff");
                         console.log(errResponse);
                     }
                 );
@@ -81,7 +81,7 @@
         /*]]>*/
     </script>
 
-    <body ng-app="myApp" ng-controller="addBaristaCtrl" style="background: #eee;">
+    <body ng-app="myApp" ng-controller="addStaffCtrl" style="background: #eee;">
         <!-- Container for main content---limited to 650px -->
         <div class="container-fluid pb-5" style="max-width: 650px;">
             <!-- Header -->
@@ -92,7 +92,7 @@
                 </a>
                 <!-- Page title -->
                 <a href="/" class="text-dark text-decoration-none">
-                    <span class="fw-bold h1">Coffee Maker</span>
+                    <span class="fw-bold h1">Bonsai</span>
                 </a>
                 <!-- Logout button -->
                 <form action="/logout" class="d-flex align-items-center">
@@ -101,15 +101,15 @@
             </header>
 
             <div class="rounded-4 border p-3 bg-white shadow">
-                <h5 class="d-flex pb-2 fw-bold"><i class="material-symbols-outlined me-2" style="font-weight: 600;">add</i>Add a barista</h5>
+                <h5 class="d-flex pb-2 fw-bold"><i class="material-symbols-outlined me-2" style="font-weight: 600;">add</i>Add a staff member</h5>
                 <!-- New user form -->
                 <div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control rounded-3" name="username" placeholder="" ng-model="newBarista.username" />
+                        <input type="text" class="form-control rounded-3" name="username" placeholder="" ng-model="newStaff.username" />
                         <label for="username">Username</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control rounded-3" name="password" placeholder="" ng-model="newBarista.password" />
+                        <input type="password" class="form-control rounded-3" name="password" placeholder="" ng-model="newStaff.password" />
                         <label for="password">Password</label>
                         <span class="position-absolute end-0 top-0 h-100 d-flex align-items-center me-3 user-select-none" role="button" ng-click="show($event)">
                             <i class="material-symbols-outlined pe-none">visibility</i>
@@ -127,7 +127,7 @@
                 <!-- Form buttons -->
                 <div class="d-flex align-items-center justify-content-end pt-1">
                     <button class="btn btn-primary d-flex rounded-3 px-3 mt-2" ng-click="submit()">
-                        <i class="material-symbols-outlined me-2">add</i>Add barista
+                        <i class="material-symbols-outlined me-2">add</i>Add staff
                     </button>
                 </div>
             </div>
