@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Coffee Maker</title>
+        <title>Bonsai</title>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous" />
     </head>
@@ -12,53 +12,53 @@
     <script>
         /*<![CDATA[*/
         var app = angular.module('myApp', []);
-        app.controller('addRecipeCtrl', function($scope, $http, $q) {
-            /** Recipe has a name, price, and list of ingredients */
-            $scope.recipe = {
+        app.controller('addWorkoutCtrl', function($scope, $http, $q) {
+            /** Workout has a name, price, and list of exercises */
+            $scope.workout = {
                 name: '',
                 price: '',
-                ingredients: []
+                exercises: []
             };
             
-            $http.get("/api/v1/recipes").then(function(response) {
-				$scope.recipes = response.data;
+            $http.get("/api/v1/workouts").then(function(response) {
+				$scope.workouts = response.data;
 			});
             
-            $scope.existingrecipes = [];
+            $scope.existingWorkouts = [];
 
             /**
-             * Adds a new ingredient into the ingredients array, reflected in the view
-             * with new fields for the ingredient
+             * Adds a new exercise into the exercises array, reflected in the view
+             * with new fields for the exercises
              */
-            $scope.addIngredient = function() {
-                $scope.recipe.ingredients.push({
-                    ingredient: '',
+            $scope.addExercise = function() {
+                $scope.workout.exercises.push({
+                    exercise: '',
                     amount: ''
                 });
             }
 
             /**
-             * Removes an ingredient from the recipe at the specified index, defined by
-             * the index of the ingredient form where the (X) button was clicked
+             * Removes an exercise from the workout at the specified index, defined by
+             * the index of the exercise form where the (X) button was clicked
              */
-            $scope.removeIngredient = function($index) {
-                // Cannot remove the last ingredient field
-                if ($scope.recipe.ingredients.length == 1) {
+            $scope.removeExercise = function($index) {
+                // Cannot remove the last exercise field
+                if ($scope.workout.exercises.length == 1) {
                     return;
                 }
 
-                $scope.recipe.ingredients.splice($index, 1);
+                $scope.workout.exercises.splice($index, 1);
             }
 
             /**
              * Resets the form back to blank, but leaves a single blank ingredient field
              */
             $scope.reset = function() {
-                $scope.recipe = {
+                $scope.workout = {
                     name : '',
                     price : '',
-                    ingredients : [{
-                        ingredient: '',
+                    exerices : [{
+                        exercise: '',
                         amount: ''
                     }]
                 };
@@ -75,15 +75,15 @@
                 let regex = /^\d{1,10}$/;
 
                 // Validate name
-                if ($scope.recipe.name === '') {
+                if ($scope.workout.name === '') {
                     message += "Invalid name: <blank>\n";
                     v = false;
 
                 }
                 
                 // Ensure there is space for another ingredient
-                if ($scope.recipes.length >= 3) {
-                	message += "Too many recipes: CoffeeMaker already contains 3 recipes\n";
+                if ($scope.workout.length >= 3) {
+                	message += "Too many workouts: Bonsai already contains 3 workouts\n";
                     v = false;
                 }
 
@@ -155,18 +155,18 @@
         /*]]>*/
     </script>
 
-    <body ng-app="myApp" ng-controller="addRecipeCtrl" style="background: #eee;">
+    <body ng-app="myApp" ng-controller="addWorkoutCtrl" style="background: #eee;">
         <!-- Container for main content---limited to 650px -->
         <div class="container-fluid pb-5" style="max-width: 650px;">
             <!-- Header -->
             <header class="position-relative d-flex justify-content-center align-items-center py-3 mb-4">
                 <!-- Back button -->
-                <a href="/staff/recipes" class="position-absolute start-0 text-dark text-decoration-none">
+                <a href="/staff/workouts" class="position-absolute start-0 text-dark text-decoration-none">
                     <i class="material-symbols-outlined h2 mb-0" style="font-weight: 600;">arrow_back</i>
                 </a>
                 <!-- Page title -->
                 <a href="/" class="text-dark text-decoration-none">
-                    <span class="fw-bold h1">Coffee Maker</span>
+                    <span class="fw-bold h1">Bonsai</span>
                 </a>
                 <!-- Logout button -->
                 <form action="/logout" class="d-flex align-items-center">
@@ -175,7 +175,7 @@
             </header>
 
             <div class="rounded-4 border p-3 bg-white shadow">
-                <h5 class="d-flex pb-2 fw-bold"><i class="material-symbols-outlined me-2" style="font-weight: 600;">add</i>Add a recipe</h5>
+                <h5 class="d-flex pb-2 fw-bold"><i class="material-symbols-outlined me-2" style="font-weight: 600;">add</i>Add a workout</h5>
                 <!-- Recipe form -->
                 <form class="rounded-3 border pt-3">
                     <fieldset class="container-fluid">
@@ -183,7 +183,7 @@
                             <!-- Recipe name form -->
                             <div class="col-8 px-0 pe-5">
                                 <label>Name</label>
-                                <input type="text" class="form-control" ng-model="recipe.name" />
+                                <input type="text" class="form-control" ng-model="workout.name" />
                             </div>
 
                             <!-- Recipe price form -->
@@ -191,7 +191,7 @@
                                 <label>Price</label>
                                 <div class="input-group">
                                     <span class="input-group-text text-secondary" style="background: #eee;">$</span>
-                                    <input type="text" class="form-control" ng-model="recipe.price" />
+                                    <input type="text" class="form-control" ng-model="workout.price" />
                                 </div>
                             </div>
                         </div>
