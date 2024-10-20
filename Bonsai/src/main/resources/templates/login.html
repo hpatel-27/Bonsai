@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>CoffeeMaker</title>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    </head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var app = angular.module('myApp', []);
+        app.controller('loginCtrl', function($scope, $http, $q) {
+            /** Track whether the user is logging is or signing up */
+            $scope.checkboxFlag = true;
+
+            /** Credentials have a username and password */
+            $scope.credentials = {
+                username: '',
+                password: '',
+                role: ''
+            };
+
+            /** Credentials for a newly registering user, including the re-entered password */
+            $scope.newCredentials = {
+                username: '',
+                password: '',
+                role: 'CUSTOMER'
+            };
+            $scope.passwordCheck = {
+                password: ''
+            };
+
+            /**
+             * Show a password field
+             */
+             $scope.show = function(event) {
+                let icon = event.target.querySelector('i');
+                let input = event.target.parentElement.querySelector('input');
+
+                if (icon.innerHTML === 'visibility') {
+                    icon.innerHTML = 'visibility_off';
+                    input.type = 'text';
+
+                } else {
+                    icon.innerHTML = 'visibility';
+                    input.type = 'password';
+                }
+            }
+
+            /**
+             * Register a new user
+             */
+            $scope.register = function() {
+                // Ensure the passwords match before attempting to create the user
+                if ($scope.newCredentials.password !== $scope.passwordCheck.password) {
+                    alert('Passwords must match');
+                    return;
+                }
+
+                // Post the new user
+                $http.post("/api/v1/users", $scope.newCredentials).then(
+                    function(response) {
+                        // Submit the form to login
+                        document.querySelector('#register-form').submit();
+
+                    }, function(errResponse) {
+                        console.log(errResponse);
+                        window.location.href= '/login?error';
+                });
+            }
+        });
+
+        /*]]>*/
+    </script>
+
+    <body ng-app="myApp" ng-controller="loginCtrl" style="background: #eee;">
+        <!-- Container for main content---limited to 650px -->
+        <div class="container-fluid pb-5" style="max-width: 650px;">
+            <!-- Header -->
+            <header class="position-relative d-flex justify-content-center align-items-center py-3 mb-4">
+                <!-- Page title -->
+                <a href="/" class="text-dark text-decoration-none">
+                    <span class="fw-bold h1">Coffee Maker</span>
+                </a>
+            </header>
+
+            <!-- Error message and logout success message -->
+            <div th:if="${param.error}" class="alert alert-danger p-3 d-flex justify-content-center mb-5">
+                Invalid username or password
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success p-3 d-flex justify-content-center mb-5"> 
+                You have been logged out
+            </div>
+
+            <div class="rounded-4 border p-3 bg-white shadow">
+                <!-- Checkbox for creating a new account -->
+                <div class="w-100 pb-2 d-flex justify-content-center">
+                    <label>
+                        <input type="checkbox" ng-model="checkboxFlag" />
+                        I already have an account
+                    </label>
+                </div>
+
+                <!-- Login form -->
+                <form name="f" th:action="@{/login}" method="post" ng-if="checkboxFlag">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control rounded-3" name="username" placeholder="" ng-model="credentials.username" />
+                        <label for="username">Username</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" name="password" placeholder="" ng-model="credentials.password" />
+                        <label for="password">Password</label>
+                        <span class="position-absolute end-0 top-0 h-100 d-flex align-items-center me-3 user-select-none" role="button" ng-click="show($event)">
+                            <i class="material-symbols-outlined pe-none">visibility</i>
+                        </span>
+                    </div>
+                    <button type="submit" class="w-100 btn btn-lg rounded-3 btn-primary" onclick="window.location.href = '/';">Sign in</button>
+                </form>
+
+                <!-- Register form -->
+                <form name="register-form" id="register-form" th:action="@{/login}" method="post" ng-if="!checkboxFlag">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control rounded-3" name="username" placeholder="" ng-model="newCredentials.username" />
+                        <label for="username">Username</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" name="password" placeholder="" ng-model="newCredentials.password" />
+                        <label for="password">Password</label>
+                        <span class="position-absolute end-0 top-0 h-100 d-flex align-items-center me-3 user-select-none" role="button" ng-click="show($event)">
+                            <i class="material-symbols-outlined pe-none">visibility</i>
+                        </span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" name="password-reenter" placeholder="" ng-model="passwordCheck.password" />
+                        <label for="password">Confirm password</label>
+                        <span class="position-absolute end-0 top-0 h-100 d-flex align-items-center me-3 user-select-none" role="button" ng-click="show($event)">
+                            <i class="material-symbols-outlined pe-none">visibility</i>
+                        </span>
+                    </div>
+                    <button class="w-100 btn btn-lg rounded-3 btn-primary" ng-click="register()">Create a new account</button>
+                </form>
+
+                <hr class="my-4">
+
+                <!-- Guest sign-in button -->
+                <form name="guest-form" id="guest-form" th:action="@{/login}" method="post">
+                    <!-- Form inputs to be hidden and used to send a login request -->
+                    <div class="d-none">
+                        <input type="text" class="form-control rounded-3" name="username" placeholder="" value="guest" />
+                        <input type="password" class="form-control rounded-3" name="password" placeholder="" value="" />
+                    </div>
+                    <!-- Button to submit the hidden form -->
+                    <button type="submit" class="w-100 py-2 mb-2 btn btn-outline-secondary rounded-3" id="guest-submit">Continue as a guest</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    </body>
+</html>
