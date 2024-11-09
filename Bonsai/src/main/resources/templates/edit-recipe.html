@@ -1,0 +1,284 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Coffee Maker</title>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous" />
+    </head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script>
+        /*<![CDATA[*/
+        var app = angular.module('myApp', []);
+        app.controller('editRecipeCtrl', function($scope, $http, $q) {
+            /** Recipe has a name, price, and list of ingredients */
+            $scope.recipe = {
+                name: '',
+                price: '',
+                ingredients: []
+            };
+
+            /**
+             * Get all of the recipes in the database
+             */
+            $http.get("/api/v1/recipes").then(function (response) {
+                $scope.existingRecipes = response.data;
+            });
+
+            /**
+             * Keep the name of the recipe being currently updated
+             */
+            $scope.edited = '';
+
+            /**
+             * Set the current recipe being edited to the one selected, making a
+             * deep copy of all of its fields and putting them into recipe
+             */
+            $scope.setRecipe = function($recipe) {
+                $scope.edited = $recipe.name;
+
+                $scope.recipe.name = $recipe.name;
+                $scope.recipe.price = $recipe.price; 
+                $scope.recipe.ingredients = [];
+                $recipe.ingredients.forEach((i) => {
+                    $scope.recipe.ingredients.push({
+                        ingredient: i.ingredient,
+                        amount: i.amount
+                    });
+                });
+            }
+
+            /**
+             * Adds a new ingredient into the ingredients array, reflected in the view
+             * with new fields for the ingredient
+             */
+             $scope.addIngredient = function() {
+                $scope.recipe.ingredients.push({
+                    ingredient: '',
+                    amount: ''
+                });
+            }
+
+            /**
+             * Removes an ingredient from the recipe at the specified index, defined by
+             * the index of the ingredient form where the (X) button was clicked
+             */
+            $scope.removeIngredient = function($index) {
+                // Cannot remove the last ingredient field
+                if ($scope.recipe.ingredients.length == 1) {
+                    return;
+                }
+
+                $scope.recipe.ingredients.splice($index, 1);
+            }
+
+            /**
+             * Resets the form back to the existing recipe
+             */
+             $scope.reset = function() {
+                $scope.recipe = {
+                    name : '',
+                    price : '',
+                    ingredients : [{
+                        ingredient: '',
+                        amount: ''
+                    }]
+                };
+
+                $http.get("/api/v1/recipes").then(function (response) {
+                    $scope.existingRecipes = response.data;
+                    let q = new URLSearchParams(window.location.search).get('q');
+                    let set = false;
+
+                    for (let i = 0; i < $scope.existingRecipes.length; i++) {
+                        if (q === $scope.existingRecipes[i].name) {
+                            $scope.setRecipe($scope.existingRecipes[i]);
+                            set = true;
+                            break;
+                        }
+                    }
+
+                    if (!set) {
+                        window.location = '/';
+                    }
+                });
+            }
+
+            /**
+             * Validates the form's entries before submitting
+             */
+            $scope.valid = function() {
+                // Use a flag to track what to return and keep a running
+                // error message
+                let v = true;
+                let message = "";
+                let regex = /^\d{1,10}$/;
+
+                // Validate name
+                if ($scope.recipe.name === '') {
+                    message += "Invalid name: <blank>\n";
+                    v = false;
+
+                }
+
+                // Ensure the price is a positive integer
+                let price = Number.parseFloat($scope.recipe.price);
+                if (!regex.test($scope.recipe.price) || price % 1 !== 0 || price <= 0) {
+                    message += "Invalid price: " + $scope.recipe.price + "\n";
+                    v = false;
+                }
+
+                // Validate ingredients
+                $scope.recipe.ingredients.forEach((i) => {
+                    if (i.ingredient === '') {
+                        message += "Invalid ingredient name: <blank>\n";
+                        v = false;
+                    }
+
+                    // Ensure the price is a positive integer
+                    let amt = Number.parseFloat(i.amount);
+                    if (!regex.test(i.amount) || amt % 1 !== 0 || amt <= 0) {
+                        message += "Invalid ingredient amount: " + i.amount + "\n";
+                        v = false;
+                    }
+                });
+                
+                // Send an alert if something is not right
+                if (!v) {
+                    alert(message);
+                }
+                
+                // Return
+                return v;
+            }
+
+            /**
+             * Submits a request to validate, then post the recipe
+             */
+            $scope.submit = function() {
+                if ($scope.valid()) {
+                    $scope.updateRecipe();
+                }
+            }
+
+            /**
+             * Makes an HTTP request to put the recipe to the database
+             */
+            $scope.updateRecipe = function() {
+                $http.put("/api/v1/recipes/" + $scope.edited, $scope.recipe).then(
+                    function(success) {
+                        if (window.confirm("Recipe successfully updated! Would you like to go to the home page?")) {
+                            window.location.href="/index";
+
+                        } else {
+                            // Reset the form if the user isn't leaving
+                            $scope.reset();
+                        }
+
+                    }, function(rejection) {
+                        alert("Error while updating recipe");
+                        return false;
+                    }
+                );
+            }
+
+            $scope.reset();
+        });
+        /*]]>*/
+    </script>
+
+    <body ng-app="myApp" ng-controller="editRecipeCtrl" style="background: #eee;">
+        <!-- Container for main content---limited to 650px -->
+        <div class="container-fluid pb-5" style="max-width: 650px;">
+            <!-- Header -->
+            <header class="position-relative d-flex justify-content-center align-items-center py-3 mb-4">
+                <!-- Back button -->
+                <a href="/staff/recipes" class="position-absolute start-0 text-dark text-decoration-none">
+                    <i class="material-symbols-outlined h2 mb-0" style="font-weight: 600;">arrow_back</i>
+                </a>
+                <!-- Page title -->
+                <a href="/" class="text-dark text-decoration-none">
+                    <span class="fw-bold h1">Coffee Maker</span>
+                </a>
+                <!-- Logout button -->
+                <form action="/logout" class="d-flex align-items-center">
+	                <button type="submit" class="btn btn-outline-secondary d-flex position-absolute end-0"><i class="material-symbols-outlined me-2">logout</i>Log out</button>
+	            </form>
+			</header>
+
+            <div class="rounded-4 border p-3 bg-white shadow">
+                <h5 class="d-flex pb-2 fw-bold"><i class="material-symbols-outlined me-2" style="font-weight: 600;">edit</i>Edit recipe</h5>
+
+                <!-- Recipe form -->
+                <form class="rounded-3 border pt-3">
+                    <fieldset class="container-fluid">
+                        <div class="row border-bottom px-3 pb-3">
+                            <!-- Recipe name form -->
+                            <div class="col-8 px-0 pe-5">
+                                <label>Name</label>
+                                <input type="text" class="form-control" ng-model="recipe.name" />
+                            </div>
+
+                            <!-- Recipe price form -->
+                            <div class="col-4 px-0">
+                                <label>Price</label>
+                                <div class="input-group">
+                                    <span class="input-group-text text-secondary" style="background: #eee;">$</span>
+                                    <input type="text" class="form-control" ng-model="recipe.price" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Recipe ingredients form -->
+                    <fieldset class="pt-3">
+                        <!-- Header and add ingredients button -->
+                        <div class="d-flex align-items-center justify-content-between px-3 mb-3">
+                            <h5 class="m-0 pe-4">Ingredients</h5>
+                            <button class="btn btn-outline-secondary rounded-2 d-flex" ng-click="addIngredient()">
+                                <i class="material-symbols-outlined me-2">add</i>Add ingredient
+                            </button>
+                        </div>
+                        <div class="container-fluid">
+                            <!-- Form labels -->
+                            <div class="row px-3 py-3 border-top d-flex align-items-center" style="background-color: #eee;">
+                                <div class="col-7 px-0 pe-5">
+                                    <h6 class="m-0 text-secondary">Name</h6>
+                                </div>
+                                <div class="col-4 px-0">
+                                    <h6 class="m-0 text-secondary">Amount</h6>
+                                </div>
+                            </div>
+                            <!-- Form items -->
+                            <div class="row px-3 py-3 border-top d-flex align-items-center" ng-repeat="ingredient in recipe.ingredients">
+                                <div class="col-7 px-0 pe-5">
+                                    <input type="text" class="form-control me-3" ng-model="ingredient.ingredient" />
+                                </div>
+                                <div class="col-4 px-0 pe-5">
+                                    <input type="text" class="form-control me-3" ng-model="ingredient.amount" />
+                                </div>
+                                <div class="col-1 px-0 d-flex align-items-center justify-content-center">
+                                    <button class="btn rounded-5 d-flex p-1" ng-click="removeIngredient($index)">
+                                        <i class="material-symbols-outlined fs-5 text-danger">delete</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+                <!-- Form buttons -->
+                <div class="d-flex align-items-center justify-content-end pt-1">
+                    <button class="btn btn-secondary d-flex rounded-3 px-3 mt-2 me-2" ng-click="reset()">
+                        <i class="material-symbols-outlined me-2">restart_alt</i>Reset
+                    </button>
+                    <button class="btn btn-primary d-flex rounded-3 px-3 mt-2" ng-click="submit()">
+                        <i class="material-symbols-outlined me-2">upgrade</i>Update recipe
+                    </button>
+                </div>
+            </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    </body>
+</html>
