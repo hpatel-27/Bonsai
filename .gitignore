@@ -1,2 +1,4 @@
 .vscode
 text.txt
+.env
+/.metadata/

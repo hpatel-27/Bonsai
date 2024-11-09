@@ -1,7 +1,7 @@
 // workoutService.js
 import { request } from "../utils/request";
 
-const BASE_URL = "/api/v1/workouts";
+const BASE_URL = "8080/api/v1/workouts";
 
 export const workoutService = {
   getWorkouts: async () => {
