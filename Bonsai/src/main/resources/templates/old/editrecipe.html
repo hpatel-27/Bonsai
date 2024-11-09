@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Edit Recipe</title>
+
+        <style>
+            html, body {
+                margin: 0;
+                font-family: sans-serif;
+            }
+
+            body {
+                margin-bottom: 25px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            h1 {
+                margin: 25px 0 10px 0;
+            }
+
+            #inputFields {
+                width: fit-content;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #inputFields input {
+                width: calc(100% - 20px);
+                height: 25px;
+                padding: 5px 10px;
+                border: 1px solid #aaa;
+                border-radius: 25px;
+                font-size: 18px;
+            }
+
+            .inputWrapper {
+                margin: 1.5vmin;
+                padding: min(25px, 5vmin);
+
+                display: flex;
+                flex-direction: column;
+
+                background-color: #eee;
+                border-radius: 25px;
+
+                filter: drop-shadow(0 0 0.5vmin #666);
+            }
+
+            h2 {
+                margin: 0 0 15px 0;
+            }
+
+            #recipeList {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
+
+            .recipeItem {
+                width: calc(100% - 20px);
+                height: 25px;
+
+                margin-bottom: 10px;
+                padding: 10px 10px 5px;
+
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 25px;
+                font-size: 18px;
+            }
+
+            .recipeItem:last-of-type {
+                margin-bottom: 0;
+            }
+
+            .recipeItem:hover {
+                cursor: pointer;
+                user-select: none;
+            }
+            
+            .selectedRecipe {
+                background-color: #d2e2e8;
+                border: 1px solid #6b9ab9;
+            }
+
+            #recipeIngredientsWrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            #recipeIngredientsWrapper > h2 {
+                width: 100%;
+            }
+
+            #recipeIngredientsWrapper > form {
+                display: grid;
+                grid-template-columns: 1fr 2fr 6fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 5px;
+
+                padding: 10px 0;
+                border-top: 1px solid #aaa;
+            }
+
+            #recipeIngredientsWrapper > form:first-of-type {
+                padding-top: 0;
+                border: none;
+            }
+
+            #recipeIngredientsWrapper .removeIngredient {
+                grid-column: 1;
+                grid-row: 1/3;
+
+                margin-top: 25px;
+                padding: 1.5px 0 0 0.25px;
+                width: 30px;
+                height: 30px;
+
+                color: #fff;
+                background-color: #e15b5b;
+                border: none;
+            }
+
+            #recipeIngredientsWrapper .removeIngredient:active {
+                background-color: #b55656;
+            }
+
+            #recipeIngredientsWrapper label {
+                padding: 7.5px 2.5px 7.5px 7.5px;
+                font-size: 18px;
+            }
+
+            button {
+                margin-top: 15px;
+                padding: 10px;
+                border: 1px solid #aaa;
+                border-radius: 25px;
+                background-color: #ddd;
+                font-size: 18px;
+            }
+
+            button:hover {
+                cursor: pointer;
+                background-color: #bbb;
+            }
+
+            button:active {
+                background-color: #ddd;
+            }
+
+            #buttonWrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                width: 200px;
+            }
+
+            #homeButton {
+                position: absolute;
+                display: fixed;
+                top: 10px;
+                left: 25px;
+                margin: 0;
+                padding: 0;
+                
+                color: #000;
+                font-size: 50px;
+                text-decoration: none;
+            }
+
+            #homeButton:hover {
+                color: #555;
+            }
+
+            @media screen and (max-width: 350px) {
+                #homeButton {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script>
+        /*<![CDATA[*/
+        var app = angular.module('myApp', []);
+
+        app.controller('editRecipeCtrl', function($scope, $http, $q) {
+            console.log("Hit!");
+
+            /** Recipe has a name, price, and list of ingredients */
+            $scope.recipe = {
+                name: '',
+                price: '',
+                ingredients: []
+            };
+
+            /**
+             * Get all of the recipes in the database
+             */
+            $http.get("/api/v1/recipes").then(function (response) {
+                $scope.existingRecipes = response.data;
+            });
+
+            /**
+             * Keep the name of the recipe being currently updated
+             */
+            $scope.edited = '';
+            $scope.index = -1;
+
+            /**
+             * Set the current recipe being edited to the one selected, making a
+             * deep copy of all of its fields and putting them into recipe
+             */
+            $scope.setRecipe = function($recipe) {
+                $scope.edited = $recipe.name;
+                for (let i = 0; i < $scope.existingRecipes.length; i++) {
+                    if ($recipe.name === $scope.existingRecipes[i].name) {
+                        $scope.index = i;
+                    }
+                }
+
+                $scope.recipe.name = $recipe.name;
+                $scope.recipe.price = $recipe.price; 
+                $scope.recipe.ingredients = [];
+                $recipe.ingredients.forEach((i) => {
+                    $scope.recipe.ingredients.push({
+                        ingredient: i.ingredient,
+                        amount: i.amount
+                    });
+                });
+            }
+
+            /**
+             * Adds a new ingredient into the ingredients array, reflected in the view
+             * with new fields for the ingredient
+             */
+             $scope.addIngredient = function() {
+                $scope.recipe.ingredients.push({
+                    ingredient: '',
+                    amount: ''
+                });
+            }
+
+            /**
+             * Removes an ingredient from the recipe at the specified index, defined by
+             * the index of the ingredient form where the (X) button was clicked
+             */
+            $scope.removeIngredient = function($index) {
+                // Cannot remove the last ingredient field
+                if ($scope.recipe.ingredients.length == 1) {
+                    return;
+                }
+
+                $scope.recipe.ingredients.splice($index, 1);
+            }
+
+            /**
+             * Resets the form back to blank, but leaves a single blank ingredient field
+             */
+             $scope.reset = function() {
+                $scope.recipe = {
+                    name : '',
+                    price : '',
+                    ingredients : [{
+                        ingredient: '',
+                        amount: ''
+                    }]
+                };
+
+                $http.get("/api/v1/recipes").then(function (response) {
+                    $scope.existingRecipes = response.data;
+                });
+            }
+
+            /**
+             * Validates the form's entries before submitting
+             */
+            $scope.valid = function() {
+                // Use a flag to track what to return and keep a running
+                // error message
+                let v = true;
+                let message = "";
+                let regex = /^\d{1,10}$/;
+
+                // Ensure a recipe has been chosen
+                if ($scope.index === -1) {
+                    message += "A recipe must be chosen to edit\n";
+                    v = false;
+                }
+
+                // Validate name
+                if ($scope.recipe.name === '') {
+                    message += "Invalid name: <blank>\n";
+                    v = false;
+
+                }
+
+                // Ensure the price is a positive integer
+                let price = Number.parseFloat($scope.recipe.price);
+                if (!regex.test($scope.recipe.price) || price % 1 !== 0 || price <= 0) {
+                    message += "Invalid price: " + $scope.recipe.price + "\n";
+                    v = false;
+                }
+
+                // Validate ingredients
+                $scope.recipe.ingredients.forEach((i) => {
+                    if (i.ingredient === '') {
+                        message += "Invalid ingredient name: <blank>\n";
+                        v = false;
+                    }
+
+                    // Ensure the price is a positive integer
+                    let amt = Number.parseFloat(i.amount);
+                    if (!regex.test(i.amount) || amt % 1 !== 0 || amt <= 0) {
+                        message += "Invalid ingredient amount: " + i.amount + "\n";
+                        v = false;
+                    }
+                });
+                
+                // Send an alert if something is not right
+                if (!v) {
+                    alert(message);
+                }
+                
+                // Return
+                return v;
+            }
+
+            /**
+             * Submits a request to validate, then post the recipe
+             */
+            $scope.submit = function() {
+                if ($scope.valid()) {
+                    $scope.updateRecipe();
+                }
+            }
+
+            /**
+             * Makes an HTTP request to put the recipe to the database
+             */
+            $scope.updateRecipe = function() {
+                $http.put("/api/v1/recipes/" + $scope.edited, $scope.recipe).then(
+                    function(success) {
+                        if (window.confirm("Recipe successfully updated! Would you like to go to the home page?")) {
+                            window.location.href="index";
+
+                        } else {
+                            // Reset the form if the user isn't leaving
+                            $scope.reset();
+                        }
+
+                    }, function(rejection) {
+                        alert("Error while updating recipe");
+                        return false;
+                    }
+                );
+            }
+
+            $scope.reset();
+        });
+        /*]]>*/
+    </script>
+
+    <body ng-app="myApp" ng-controller="editRecipeCtrl">
+        <a href="./" id="homeButton">&#8962;</a>
+
+        <h1>Edit a Recipe</h1>
+
+        <div id="inputFields">
+            <div class="inputWrapper">
+                <h2>Recipes</h2>
+                <ul id="recipeList">
+                    <li class="recipeItem" ng-class="{'selectedRecipe': $index === index}" ng-repeat="recipe in existingRecipes" ng-click="setRecipe(recipe)">{{recipe.name}}</li>
+                </ul>
+            </div>
+
+            <hr style="width: 100%; border: 0.5px solid #aaa;" />
+
+            <div class="inputWrapper" id="recipeNameWrapper">
+                <h2>Name</h2>
+                <form class="input" id="name">
+                    <input type="text" ng-model="recipe.name" />
+                </form>
+            </div>
+
+            <div class="inputWrapper" id="recipePriceWrapper">
+                <h2>Price</h2>
+                <form class="input" id="price">
+                    <input type="text" ng-model="recipe.price" />
+                </form>
+            </div>
+
+            <div class="inputWrapper" id="recipeIngredientsWrapper">
+                <h2>Ingredients</h2>
+                <!-- Ingredient forms are repeated for each ingredient in the recipe's ingredients array -->
+                <form class="input" ng-repeat="ingredient in recipe.ingredients">
+                    <button class="removeIngredient" ng-click="removeIngredient($index)">&#x2715;</button>
+                    <label>Name:</label>
+                    <input type="text" ng-model="ingredient.ingredient" />
+                    <label>Amount:</label>
+                    <input type="text" ng-model="ingredient.amount" />
+                </form>
+                <button ng-click="addIngredient()">Add Ingredient</button>
+            </div>
+        </div>
+
+        <div id="buttonWrapper">
+            <button ng-click="submit()">Submit</button>
+            <button ng-click="reset()">Reset</button>
+        </div>
+    </body>
+</html>

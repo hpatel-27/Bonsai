@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Bonsai is a full-stack web application designed to manage and track workouts. It consists of a React frontend and a Spring Boot backend, both containerized and orchestrated using Docker Compose. The application allows users to view, add, and track workout routines while interacting with a MySQL database.
+Bonsai is a full-stack web application designed to manage and track workouts. It consists of a Angular frontend and a Spring Boot backend, orchestrated using Maven and Tomcat. The application allows users to view, add, and track workout routines while interacting with a MySQL database.
 
 ## Table of Contents
 
@@ -23,9 +23,6 @@ Bonsai is a full-stack web application designed to manage and track workouts. It
 
 Before setting up the project, ensure you have the following installed:
 
-- **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
-- **Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
-- **Node.js**: [Install Node.js](https://nodejs.org/) (version 14.x or later)
 - **Java JDK**: [Install Java JDK](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) (version 11 or later)
 
 ## Setup
@@ -41,18 +38,6 @@ Before setting up the project, ensure you have the following installed:
 
 ```bash
 /bonsai-project
-│
-├── /bonsai-frontend         # React frontend
-│   ├── /public              # Public assets
-│   ├── /src                 # React source files
-│   │   ├── /components      # React components
-│   │   ├── /services        # API services
-│   │   ├── /hooks           # Custom hooks
-│   │   ├── App.jsx          # Main App component
-│   │   └── main.jsx         # Entry point
-│   ├── package.json         # Frontend dependencies
-│   └── vite.config.js       # Vite configuration
-│
 ├── /Bonsai                  # Spring Boot backend
 │   ├── /src/main/java
 │   │   └── /hpatel/Bonsai   # Java source files
@@ -62,10 +47,5 @@ Before setting up the project, ensure you have the following installed:
 │   │       ├── /repositories# JPA repositories
 │   ├── application.properties # Spring Boot configuration
 │   └── pom.xml              # Maven configuration
-│
-├── /nginx                   # Nginx configuration
-│   └── nginx.conf           # Nginx configuration file
-│
-└── docker-compose.yml       # Docker Compose configuration
 ```
 

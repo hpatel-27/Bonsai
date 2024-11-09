@@ -1,0 +1,259 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Coffee Maker</title>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous" />
+    </head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    <script>
+        /*<![CDATA[*/
+        var app = angular.module('myApp', []);
+        app.controller('orderHistoryCtrl', function($scope, $http, $q) {
+            // Get the current user
+            $http.get("/api/v1/currentuser").then(
+                function (response) {
+                    if (!response.data.username) {
+                        window.location.href = "/login";
+                    }
+
+                    $scope.user = {
+                        username: response.data.username,
+                        role: response.data.role
+                    };
+                }
+            );
+
+            /**
+             * Resets the page
+             */
+             $scope.reset = function() {
+                // Get the orders in the system
+                $http.get("/api/v1/orders").then(function(response) {
+                    // Sort orders by the date they were placed---newest first
+                    $scope.orders = response.data.sort((a, b) => {
+                        return b.timestamp.localeCompare(a.timestamp);
+                    });
+                });
+            }
+
+            /**
+             * Take in a timestamp string and return a formatted timestamp
+             */
+            $scope.parseTimestamp = function(timestamp) {
+                let timestampArr = timestamp.split('T');
+                let dateArr = timestampArr[0].split('-');
+                let timeArr = timestampArr[1].split(':');
+                let amPm;
+
+                // Set am/pm and adjust hour to 12-hour clock
+                let currHour = parseInt(timeArr[0])
+                if (currHour >= 12) {
+                    amPm = 'pm';
+                    if (currHour > 12) {
+                        timeArr[0] = currHour - 12;
+                    }
+                } else {
+                    amPm = 'am';
+                }
+
+                // Check if the timestamp is today
+                let now = new Date();
+                let timestampDay = new Date(dateArr[0], dateArr[1] - 1, dateArr[2]);
+
+                // Put together the date and time strings
+                let dateString = (now.toLocaleDateString('en-US') === timestampDay.toLocaleDateString('en-US')) ? 'Today' : dateArr[1] + '/' + dateArr[2] + '/' + dateArr[0].slice(-2);
+                let timeString = timeArr[0] + ':' + timeArr[1] + amPm;
+
+                return dateString + ' at ' + timeString;
+            }
+            
+            /**
+             * Updates an order's status
+             */
+            $scope.updateStatus = function(order, newStatus) {
+                // Send a put request
+                $http.put('/api/v1/orders/' + order.id, newStatus).then(
+                    function(response) {
+                        $scope.reset();
+                    },
+                    function(errResponse) {
+                        alert('Error updating order status');
+                        $scope.reset();
+                    }
+                );
+            }
+
+            /**
+             * Calls to make coffee and updates the status accordingly
+             */
+            $scope.makeCoffee = function(order) {
+                $http.post('/api/v1/makecoffee', order).then(
+                    function(response) {
+                        $scope.updateStatus(order, 'Complete');
+                    },
+                    function(errResponse) {
+                        $scope.updateStatus(order, 'Failed');
+                        alert('Error making coffee');
+                    }
+                )
+            }
+
+            /**
+             * Get a map of the recipes in the order and their count
+             */
+            $scope.parseRecipes = function (recipes) {
+                let r = {};
+                for (recipe in recipes) {
+                    let name = recipes[recipe].name;
+                    r[name] = (r[name]) ? r[name]+1 : 1;
+                }
+                return r;
+            }
+
+            /**
+             * Orders the given items again for a customer
+             */
+            $scope.reorder = function (oldOrder) {
+                // Create the order object from the original order
+                const order = {
+                    timestamp: new Date().toISOString(),
+                    recipes: oldOrder.recipes,
+                    username: oldOrder.username,
+                    status: 'Submitted',
+                    price: oldOrder.price
+                }
+
+                // Place the order and display a success/error message
+                $http.post('/api/v1/orders', order).then(
+                    function (response) {
+                        $scope.reset();
+                    },
+                    function (errResponse) {
+                        alert('Error submitting order');
+                        $scope.reset();
+                    }
+                );
+            }
+
+            $scope.reset();
+        });
+        /*]]*/
+    </script>
+
+    <body ng-app="myApp" ng-controller="orderHistoryCtrl" style="background: #eee;">
+        <!-- Container for main content---limited to 650px -->
+        <div class="container-fluid pb-5" style="max-width: 650px;">
+            <!-- Header -->
+            <header class="position-relative d-flex justify-content-center align-items-center py-3 mb-4">
+                <!-- Back button -->
+                <a href="/" class="position-absolute start-0 text-dark text-decoration-none">
+                    <i class="material-symbols-outlined h2 mb-0" style="font-weight: 600;">arrow_back</i>
+                </a>
+                <!-- Page title -->
+                <a href="/" class="text-dark text-decoration-none">
+                    <span class="fw-bold h1">Coffee Maker</span>
+                </a>
+                <!-- Logout button -->
+                <form action="/logout" class="d-flex align-items-center">
+                    <button type="submit" class="btn btn-outline-secondary d-flex position-absolute end-0"><i class="material-symbols-outlined me-2">logout</i>Log out</button>
+                </form>
+            </header>
+
+            <div class="rounded-4 border pt-3 bg-white shadow">
+                <!-- Header -->
+                 <div class="d-flex align-items-center justify-content-between px-3 mb-3">
+                    <h5 class="d-flex fw-bold m-0 pe-4" ng-if="user.role === 'ADMIN' || user.role === 'CUSTOMER'"><i class="material-symbols-outlined me-2" style="font-weight: 600;">history</i>Order History</h5>
+                    <h5 class="d-flex fw-bold m-0 pe-4" ng-if="user.role === 'BARISTA'"><i class="material-symbols-outlined me-2" style="font-weight: 600;">history</i>Active Orders</h5>
+               </div>
+
+                <!-- List of orders shown to admin/baristas -->
+                <div class="container-fluid" ng-if="user.role === 'ADMIN' || user.role === 'BARISTA'">
+                    <!-- Labels -->
+                    <div class="row px-3 py-3 border-top d-flex align-items-center" style="background: #eee;" ng-if="orders.length > 0">
+                        <div class="col-1 ps-0"><h6 class="m-0 text-secondary">ID</h6></div>
+                        <div class="col-4"><h6 class="m-0 text-secondary">Date</h6></div>
+                        <div class="col-2"><h6 class="m-0 text-secondary">User</h6></div>
+                        <div class="col-2 text-end"><h6 class="m-0 text-secondary">Price</h6></div>
+                        <div class="col-3 pe-0"><h6 class="m-0 text-secondary">Status</h6></div>
+                    </div>
+                    <!-- Items -->
+                    <div class="row px-3 py-3 border-top d-flex align-items-center" ng-repeat="order in orders">
+                        <div class="col-1 ps-0">
+                            <span>{{order.id}}</span>
+                        </div>
+                        <div class="col-4">
+                            <span>{{parseTimestamp(order.timestamp)}}</span>
+                        </div>
+                        <div class="col-2 text-truncate">
+                            <span>{{order.username}}</span>
+                        </div>
+                        <div class="col-2 text-end">
+                            <span>${{order.price}}</span>
+                        </div>
+                        <div class="col-3 pe-0 d-flex align-items-center justify-content-between">
+                            <!-- Badges -->
+                            <span class="badge bg-warning" ng-if="order.status === 'Submitted'">Submitted</span>
+                            <span class="badge bg-primary" ng-if="order.status === 'In Progress'">In progress</span>
+                            <span class="badge bg-success" ng-if="order.status === 'Complete'">Complete</span>
+                            <span class="badge bg-danger" ng-if="order.status === 'Failed'">Failed</span>
+                            <span class="badge" style="background: #bbb;" ng-if="order.status === 'Closed'">Closed</span>
+
+                            <!-- Progress buttons -->
+                            <button class="btn rounded-5 d-flex text-primary m-0" ng-if="order.status === 'Submitted' && user.role === 'BARISTA'" ng-click="updateStatus(order, 'In Progress')">
+                                <i class="material-symbols-outlined fs-5">preliminary</i>
+                            </button>
+                            <button class="btn rounded-5 d-flex text-primary m-0" ng-if="order.status === 'In Progress' && user.role === 'BARISTA'" ng-click="makeCoffee(order)">
+                                <i class="material-symbols-outlined fs-5">check_circle</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List of orders shown to customers -->
+                <div class="container-fluid" ng-if="user.role === 'CUSTOMER'">
+                    <!-- Labels -->
+                    <div class="row px-3 py-3 border-top d-flex align-items-center" style="background: #eee;" ng-if="orders.length > 0">
+                        <div class="col-3"><h6 class="m-0 text-secondary">Date</h6></div>
+                        <div class="col-4"><h6 class="m-0 text-secondary">Beverages</h6></div>
+                        <div class="col-2 text-end"><h6 class="m-0 text-secondary">Price</h6></div>
+                        <div class="col-3 pe-0"><h6 class="m-0 text-secondary">Status</h6></div>
+                    </div>
+                    <!-- Items -->
+                    <div class="row px-3 py-3 border-top d-flex align-items-center" ng-repeat="order in orders">
+                        <div class="col-3">
+                            <span>{{parseTimestamp(order.timestamp)}}</span>
+                        </div>
+                        <div class="col-4">
+                            <span class="m-0" ng-repeat="(recipe, count) in parseRecipes(order.recipes)">{{recipe}} x {{count}}{{$last ? '' : ', '}}</span>
+                        </div>
+                        <div class="col-2 text-end">
+                            <span>${{order.price}}</span>
+                        </div>
+                        <div class="col-3 pe-0 d-flex align-items-center justify-content-between">
+                            <!-- Badges -->
+                            <span class="badge bg-warning" ng-if="order.status === 'Submitted'">Submitted</span>
+                            <span class="badge bg-primary" ng-if="order.status === 'In Progress'">In progress</span>
+                            <span class="badge bg-success" ng-if="order.status === 'Complete'">Complete</span>
+                            <span class="badge bg-danger" ng-if="order.status === 'Failed'">Failed</span>
+                            <span class="badge" style="background: #bbb;" ng-if="order.status === 'Closed'">Closed</span>
+
+                            <!-- Buttons -->
+                            <button class="btn rounded-5 d-flex text-primary m-0" ng-if="order.status === 'Complete' && user.role === 'CUSTOMER'" ng-click="updateStatus(order, 'Closed')">
+                                <i class="material-symbols-outlined fs-5">check</i>
+                            </button>
+                            <button class="btn rounded-5 d-flex text-primary m-0" ng-if="order.status === 'Closed' && user.role === 'CUSTOMER'" ng-click="reorder(order)">
+                                <i class="material-symbols-outlined fs-5">replay</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+    </body>
+</html>
